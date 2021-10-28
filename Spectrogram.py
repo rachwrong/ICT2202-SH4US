@@ -13,6 +13,7 @@ from tempfile import mktemp
 
 splitCount=1
 summaryDataList = []
+summaryDataCount = []
 summaryNameList = []
 summaryFSList = []
 numpy.seterr(divide = 'ignore') 
@@ -93,8 +94,13 @@ def createSpectrogram(file,name,outDir, color, xmin, xmax, ymin, ymax, summary=F
         return 
     if summary:
         figure = figureSummary
-        summaryDataList.append(data[:,1])
-        summaryDataList.append(data[:,0])
+        if data.ndim == 2:
+            summaryDataList.append(data[:,1])
+            summaryDataList.append(data[:,0])
+            summaryDataCount.append(2)
+        else:
+            summaryDataList.append(data)
+            summaryDataCount.append(1)
         summaryNameList.append(str(name))
         summaryFSList.append(FS)
                                
@@ -109,6 +115,7 @@ def createSpectrogram(file,name,outDir, color, xmin, xmax, ymin, ymax, summary=F
             cmap = plt.get_cmap(color) 
             spec_left.specgram(data[:,0], Fs=FS, NFFT=128, noverlap=0, cmap=cmap)  # plot left
             spec_left.set_ylabel("left")
+            spec_left.set_title(name)
             spec_right.specgram(data[:,1], Fs=FS, NFFT=128, noverlap=0, cmap=cmap)  # plot right
             spec_right.set_ylabel("right")
             
@@ -131,6 +138,7 @@ def createSpectrogram(file,name,outDir, color, xmin, xmax, ymin, ymax, summary=F
             cmap = plt.get_cmap(color)
             spec_single.specgram(data, Fs=FS, NFFT=128, noverlap=0, cmap=cmap) # plot single
             spec_single.set_ylabel("One-Dimensional")
+            spec_single.set_title(name)
             
             if xmin is not None :
                 spec_single.set_xlim(left=xmin)
@@ -144,30 +152,49 @@ def createSpectrogram(file,name,outDir, color, xmin, xmax, ymin, ymax, summary=F
         figure.savefig((str(outDir)+'\\'+name+"-Spectrogram.png"))
         
 def plotSummary(outDir, color, xmin, xmax, ymin, ymax, figure):
-    count = len(summaryNameList)
-    gspec = figure.add_gridspec(ncols=1, nrows=((count * 2)))
+    count = sum(summaryDataCount)
+    gspec = figure.add_gridspec(ncols=1, nrows=count)
     cmap = plt.get_cmap(color) 
-    for i in range(0,len(summaryDataList),2):
-        spec_right = figure.add_subplot(gspec[i])
-        spec_right.specgram(summaryDataList[i], Fs=summaryFSList[(i//2)], NFFT=128, noverlap=0, cmap=cmap)  # plot right
-        spec_right.set_ylabel("right")
-        spec_right.set_title(summaryNameList[(i//2)])
-        i+=1
-        spec_left = figure.add_subplot(gspec[i])
-        spec_left.specgram(summaryDataList[i], Fs=summaryFSList[(i//2)], NFFT=128, noverlap=0, cmap=cmap)  # plot left
-        spec_left.set_ylabel("left")
-        if xmin is not None :
-            spec_left.set_xlim(left=xmin)
-            spec_right.set_xlim(left=xmin)
-        if xmax is not None :
-            spec_left.set_xlim(right=xmax)
-            spec_right.set_xlim(right=xmax)
-        if ymin is not None:
-            spec_left.set_ylim(left=ymin)
-            spec_right.set_ylim(left=ymin)
-        if ymin is not None:
-            spec_left.set_ylim(right=ymax)
-            spec_right.set_ylim(right=ymax)
+    dataIndex = 0
+    fileIndex = 0
+    while(dataIndex < len(summaryDataList)):
+        if summaryDataCount[fileIndex] == 2:
+            spec_right = figure.add_subplot(gspec[dataIndex])
+            spec_right.specgram(summaryDataList[dataIndex], Fs=summaryFSList[fileIndex], NFFT=128, noverlap=0, cmap=cmap)  # plot right
+            spec_right.set_ylabel("right")
+            spec_right.set_title(summaryNameList[(fileIndex)])
+            dataIndex +=1
+            spec_left = figure.add_subplot(gspec[dataIndex])
+            spec_left.specgram(summaryDataList[dataIndex], Fs=summaryFSList[fileIndex], NFFT=128, noverlap=0, cmap=cmap)  # plot left
+            spec_left.set_ylabel("left")
+            if xmin is not None :
+                spec_left.set_xlim(left=xmin)
+                spec_right.set_xlim(left=xmin)
+            if xmax is not None :
+                spec_left.set_xlim(right=xmax)
+                spec_right.set_xlim(right=xmax)
+            if ymin is not None:
+                spec_left.set_ylim(left=ymin)
+                spec_right.set_ylim(left=ymin)
+            if ymin is not None:
+                spec_left.set_ylim(right=ymax)
+                spec_right.set_ylim(right=ymax)
+        else:
+            spec_single = figure.add_subplot(gspec[dataIndex])
+            cmap = plt.get_cmap(color)
+            spec_single.specgram(summaryDataList[dataIndex], Fs=summaryFSList[dataIndex], NFFT=128, noverlap=0, cmap=cmap) # plot single
+            spec_single.set_ylabel("One-Dimensional")
+            spec_single.set_title(summaryNameList[(fileIndex)])
+            if xmin is not None :
+                spec_single.set_xlim(left=xmin)
+            if xmax is not None :
+                spec_single.set_xlim(right=xmax)
+            if ymin is not None:
+                spec_single.set_ylim(left=ymin)
+            if ymin is not None:
+                spec_single.set_ylim(right=ymax)
+        dataIndex += 1
+        fileIndex += 1
     figure.savefig((str(outDir)+'\\'+"Summary-Spectrogram.png"))
         
 
