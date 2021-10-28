@@ -2,6 +2,8 @@
 import ntpath
 import os
 import argparse
+from numpy import ndarray
+import numpy as numpy
 from pydub import AudioSegment
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
@@ -13,6 +15,7 @@ splitCount=1
 summaryDataList = []
 summaryNameList = []
 summaryFSList = []
+numpy.seterr(divide = 'ignore') 
 
 # Validate Inputs
 def inputValidate(inDir, outDir, color, xmin, xmax, ymin, ymax):
@@ -82,7 +85,12 @@ def mp3Handler(file):
 
 # Create Spectrogram
 def createSpectrogram(file,name,outDir, color, xmin, xmax, ymin, ymax, summary=False, figureSummary=None):
-    FS, data = wavfile.read(file)  # read wav file
+    try:
+        FS, data = wavfile.read(file)  # read wav file
+    except Exception:
+        pass
+        print("Error: Skipping ",name, " file unreadable. High probability of being tempered with.")
+        return 
     if summary:
         figure = figureSummary
         summaryDataList.append(data[:,1])
@@ -93,28 +101,46 @@ def createSpectrogram(file,name,outDir, color, xmin, xmax, ymin, ymax, summary=F
     else:
         global splitCount 
         splitCount+=1
-        figure = plt.figure(splitCount, figsize=(100, 10))
-        gspec = figure.add_gridspec(ncols=1, nrows=2)
-        spec_right = figure.add_subplot(gspec[1])
-        spec_left = figure.add_subplot(gspec[0], sharey=spec_right)
-        cmap = plt.get_cmap(color) 
-        spec_left.specgram(data[:,0], Fs=FS, NFFT=128, noverlap=0, cmap=cmap)  # plot left
-        spec_left.set_ylabel("left")
-        spec_right.specgram(data[:,1], Fs=FS, NFFT=128, noverlap=0, cmap=cmap)  # plot right
-        spec_right.set_ylabel("right")
-        
-        if xmin is not None :
-            spec_left.set_xlim(left=xmin)
-            spec_right.set_xlim(left=xmin)
-        if xmax is not None :
-            spec_left.set_xlim(right=xmax)
-            spec_right.set_xlim(right=xmax)
-        if ymin is not None:
-            spec_left.set_ylim(left=ymin)
-            spec_right.set_ylim(left=ymin)
-        if ymin is not None:
-            spec_left.set_ylim(right=ymax)
-            spec_right.set_ylim(right=ymax)
+        if data.ndim == 2:
+            figure = plt.figure(splitCount, figsize=(100, 10))
+            gspec = figure.add_gridspec(ncols=1, nrows=2)
+            spec_right = figure.add_subplot(gspec[1])
+            spec_left = figure.add_subplot(gspec[0], sharey=spec_right)
+            cmap = plt.get_cmap(color) 
+            spec_left.specgram(data[:,0], Fs=FS, NFFT=128, noverlap=0, cmap=cmap)  # plot left
+            spec_left.set_ylabel("left")
+            spec_right.specgram(data[:,1], Fs=FS, NFFT=128, noverlap=0, cmap=cmap)  # plot right
+            spec_right.set_ylabel("right")
+            
+            if xmin is not None :
+                spec_left.set_xlim(left=xmin)
+                spec_right.set_xlim(left=xmin)
+            if xmax is not None :
+                spec_left.set_xlim(right=xmax)
+                spec_right.set_xlim(right=xmax)
+            if ymin is not None:
+                spec_left.set_ylim(left=ymin)
+                spec_right.set_ylim(left=ymin)
+            if ymin is not None:
+                spec_left.set_ylim(right=ymax)
+                spec_right.set_ylim(right=ymax)
+        else:
+            figure = plt.figure(splitCount, figsize=(100,10))
+            gspec = figure.add_gridspec(ncols=1, nrows=1)
+            spec_single = figure.add_subplot()
+            cmap = plt.get_cmap(color)
+            spec_single.specgram(data, Fs=FS, NFFT=128, noverlap=0, cmap=cmap) # plot single
+            spec_single.set_ylabel("One-Dimensional")
+            
+            if xmin is not None :
+                spec_single.set_xlim(left=xmin)
+            if xmax is not None :
+                spec_single.set_xlim(right=xmax)
+            if ymin is not None:
+                spec_single.set_ylim(left=ymin)
+            if ymin is not None:
+                spec_single.set_ylim(right=ymax)
+    
         figure.savefig((str(outDir)+'\\'+name+"-Spectrogram.png"))
         
 def plotSummary(outDir, color, xmin, xmax, ymin, ymax, figure):
