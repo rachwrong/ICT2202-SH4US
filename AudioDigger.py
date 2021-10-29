@@ -4,11 +4,9 @@ import ntpath
 import os
 import argparse
 import struct
-import sys
 import numpy as numpy
 from pydub import AudioSegment
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 from scipy.io import wavfile
 from pathlib import Path
 from tempfile import mktemp
@@ -70,6 +68,7 @@ def readDirectory(inDir, outDir, color, xmin, xmax, ymin, ymax, summary):
                     createSpectrogram((root+"\\"+file),file, outDir, color, xmin, xmax, ymin, ymax, summary, figureSummary)
                 else:
                     createSpectrogram((root+"\\"+file),file, outDir, color, xmin, xmax, ymin, ymax, summary)
+
     # Create Spectrogram for Summary
     if summary:
         plotSummary(outDir, color, xmin, xmax, ymin, ymax, figureSummary)
@@ -93,7 +92,7 @@ def createSpectrogram(file,name,outDir, color, xmin, xmax, ymin, ymax, summary=F
         FS, data = wavfile.read(file)  # read wav file
     except Exception:
         pass
-        print("Error: Skipping ",name, " file unreadable. High probability of being tempered with.")
+        print("Error: Skipping ",name, ". This file is unreadable. High probability of being tempered with.")
         return
     if summary:
         figure = figureSummary
@@ -220,26 +219,35 @@ def createHexDump(inDir, outDir, total):
                         f = open(filepath, "w")
                         f.writelines(formatted_hex)
                         f.close()
-                        print("Converted!")
+                        print(file, "hex dump is created!")
                 else:
-                    print("Not found!")
+                    print(file, "is not a mp3/wav audio file. Hex Dump will not be created!")
+
+    # user did not enter -s
     else:
         audioFName = os.path.basename(inDir)
         head, sep, tail = audioFName.partition('.')
 
-        #Open audio file and convert into hex
-        with open(inDir, 'rb') as audiofile:
-            content = audiofile.read()
-            hex = str(binascii.hexlify(content), 'ascii')
+        if(tail == ''):
+            print("Unable to find/convert audio file. Please check your path!")
+        else:
+            if tail.endswith("mp3") or tail.endswith("wav"):
+                #Open audio file and convert into hex
+                with open(inDir, 'rb') as audiofile:
+                    content = audiofile.read()
+                    hex = str(binascii.hexlify(content), 'ascii')
 
-            #convert to hex
-            formatted_hex = ' '.join(hex[i:i+2] for i in range(0, len(hex), 2))
+                    #convert to hex
+                    formatted_hex = ' '.join(hex[i:i+2] for i in range(0, len(hex), 2))
 
-            # Write hex content from file into a textfile
-            filepath = os.path.join(outDir, head + '_HexDump.txt')
-            f = open(filepath, "w")
-            f.writelines(formatted_hex)
-            f.close()
+                    # Write hex content from file into a textfile
+                    filepath = os.path.join(outDir, head + '_HexDump.txt')
+                    f = open(filepath, "w")
+                    f.writelines(formatted_hex)
+                    f.close()
+                    print(audioFName, "hex dump is created!")
+            else:
+                print(audioFName, "is not a mp3/wav audio file. Bin Dump will not be created!")
 
 # --------------KC - Bin Dump--------------
 def createBinDump(inDir, outDir, total):
@@ -253,10 +261,6 @@ def createBinDump(inDir, outDir, total):
                     with open(file, 'rb') as audiofile:
                         content = audiofile.read()
                         hex = str(binascii.hexlify(content), 'ascii')
-                        formatted_hex = ' '.join(hex[i:i+2] for i in range(0, len(hex), 2))
-                        #convert to bin from hex
-                        scale = 16 ## equals to hexadecimal
-                        num_of_bits = 8
                         formattedbin = bin(int('1'+hex, 16))[3:]
 
                         # Write bin content from file into a textfile
@@ -264,134 +268,141 @@ def createBinDump(inDir, outDir, total):
                         f = open(filepath, "w")
                         f.writelines(formattedbin)
                         f.close()
+                        print(file, "bin dump is created!")
                 else:
-                    print("Not found!")
+                    print(file, "is not a mp3/wav audio file. Bin Dump will not be created!")
     else:
         audioName = os.path.basename(inDir)
         head, sep, tail = audioName.partition('.')
 
-        #Open audio file and convert into hex
-        with open(inDir, 'rb') as audiofile:
-            content = audiofile.read()
-            hex = str(binascii.hexlify(content), 'ascii')
-            formatted_hex = ' '.join(hex[i:i+2] for i in range(0, len(hex), 2))
-            #convert to bin from hex
-            scale = 16 ## equals to hexadecimal
-            num_of_bits = 8
-            formattedbin = bin(int('1'+hex, 16))[3:]
+        if(tail == ''):
+            print("Unable to find/convert audio file. Please check your path!")
+        else:
+            if tail.endswith("mp3") or tail.endswith("wav"):
+                #Open audio file and convert into hex
+                with open(inDir, 'rb') as audiofile:
+                    content = audiofile.read()
+                    hex = str(binascii.hexlify(content), 'ascii')
+                    formattedbin = bin(int('1'+hex, 16))[3:]
 
-            # Write bin content from file into a textfile
-            filepath = os.path.join(outDir, head + '_BinDump.txt')
-            f = open(filepath, "w")
-            f.writelines(formattedbin)
-            f.close()
+                    # Write bin content from file into a textfile
+                    filepath = os.path.join(outDir, head + '_BinDump.txt')
+                    f = open(filepath, "w")
+                    f.writelines(formattedbin)
+                    f.close()
+                    print(audioName, "bin dump is created!")
+            else:
+                print(audioName, "is not a mp3/wav audio file. Bin Dump will not be created!")
 
 # --------------Zul & KC - Header Checking--------------
 def checkHeader (inPath, outPath, filepath, filename, checksum):
-    #open and read the wav file in binary ('rb')
+    # Open and read the wav file in binary ('rb')
+    # First four bytes are ChunkID which must be "RIFF" in ASCII
+    # Check if user enter -s (they want to export in all audio in the directory)
     if(checksum==True):
         fin = open(filepath,"rb")
-        ChunkID=fin.read(4) #First four bytes are ChunkID which must be "RIFF" in ASCII
-
+        ChunkID=fin.read(4)
     else:
         fin = open(inPath,"rb")
-        ChunkID=fin.read(4) #First four bytes are ChunkID which must be "RIFF" in ASCII
+        ChunkID=fin.read(4)
 
-    if(ChunkID.decode('ASCII') != 'RIFF'):  #check if the first four bytes are RIFF for it to be a WAV file
-        print("Not a valid WAV file, please try again!")
+  #  if(ChunkID.decode('ASCII') != 'RIFF'):  #check if the first four bytes are RIFF for it to be a WAV file
+      #  print("Not a valid WAV file, please try again!")
+  #  else:
+
+    ChunkSizeString=fin.read(4) # Total Size of File in Bytes - 8 Bytes
+    ChunkSize=struct.unpack('I',ChunkSizeString) # 'I' Format is to to treat the 4 bytes as unsigned 32-bit int
+    TotalSize=ChunkSize[0]+8 #The subscript is used because struct unpack returns everything as tuple
+
+    DataSize=TotalSize-44 # This is the number of bytes of data
+
+    Format=fin.read(4) # "WAVE" in ASCII
+
+    SubChunk1ID=fin.read(4) # "fmt " in ASCII
+
+    SubChunk1SizeString=fin.read(4) # Should be 16 (PCM, Pulse Code Modulation)
+    SubChunk1Size=struct.unpack("I",SubChunk1SizeString) # 'I' format to treat as unsigned 32-bit integer
+
+    AudioFormatString=fin.read(2) # Should be 1 (PCM)
+    AudioFormat=struct.unpack("H",AudioFormatString) # 'H' format to treat as unsigned 16-bit integer
+
+    NumChannelsString=fin.read(2)
+    NumChannels=struct.unpack("H",NumChannelsString) # 'H' unsigned 16-bit integer
+
+    SampleRateString=fin.read(4) #sample rate
+    SampleRate=struct.unpack("I",SampleRateString)
+
+    ByteRateString=fin.read(4)
+    ByteRate=struct.unpack("I",ByteRateString) # 'I' unsigned 32 bit integer
+
+    BlockAlignString=fin.read(2)
+    BlockAlign=struct.unpack("H",BlockAlignString) # 'H' unsigned 16-bit integer
+
+    BitsPerSampleString=fin.read(2) # 16 (CD has 16-bits per sample for each channel)
+    BitsPerSample=struct.unpack("H",BitsPerSampleString) # 'H' unsigned 16-bit integer
+
+    SubChunk2ID=fin.read(4) # "data" in ASCII
+
+    SubChunk2SizeString=fin.read(4) # Number of Data Bytes, Same as DataSize
+    SubChunk2Size=struct.unpack("I",SubChunk2SizeString)
+
+    Header_Info= {'ChunkID': ChunkID.decode('ASCII'), 'FileSize': TotalSize, 'Format': Format, 'SubChunk1ID': SubChunk1ID, 'SubChunk1Size':SubChunk1Size[0],'AudioFormat':AudioFormat[0], 'NumChannels' : NumChannels[0],'SampleRate' : SampleRate[0], 'ByteRate': ByteRate[0], 'BlockAlign' : BlockAlign[0],'BitsPerSample':BitsPerSample[0], 'SubChunk2ID':SubChunk2ID.decode('ASCII'), 'SubChunk2Size' : SubChunk2Size[0]}
+
+    #Write to txt file
+    if checksum == True:
+        writeToFile = os.path.join(outPath, 'Header_Information_Summary.txt')
+        with open(writeToFile, "a+") as af:
+            af.write(filepath)
+            af.write('\n')
+            for key, value in Header_Info.items():
+                af.write('%s:%s\n' % (key, value))
+            af.write("--------------------------------- \n")
+        fin.close()
+        print("All Headers information is exported successfully!")
+
     else:
+        print("This is the header information for", filename, ":")
         print("ChunkID=",ChunkID)
-        ChunkSizeString=fin.read(4) # Total Size of File in Bytes - 8 Bytes
-        ChunkSize=struct.unpack('I',ChunkSizeString) # 'I' Format is to to treat the 4 bytes as unsigned 32-bit int
-        TotalSize=ChunkSize[0]+8 #The subscript is used because struct unpack returns everything as tuple
         print("FileSize=",TotalSize)
-
-        DataSize=TotalSize-44 # This is the number of bytes of data
-
-        Format=fin.read(4) # "WAVE" in ASCII
         print("Format=",Format)
-
-        SubChunk1ID=fin.read(4) # "fmt " in ASCII
         print("SubChunk1ID=",SubChunk1ID)
-
-        SubChunk1SizeString=fin.read(4) # Should be 16 (PCM, Pulse Code Modulation)
-        SubChunk1Size=struct.unpack("I",SubChunk1SizeString) # 'I' format to treat as unsigned 32-bit integer
         print("SubChunk1Size=",SubChunk1Size[0])
-
-        AudioFormatString=fin.read(2) # Should be 1 (PCM)
-        AudioFormat=struct.unpack("H",AudioFormatString) # 'H' format to treat as unsigned 16-bit integer
         print("AudioFormat=",AudioFormat[0])
-
-        NumChannelsString=fin.read(2)
-        NumChannels=struct.unpack("H",NumChannelsString) # 'H' unsigned 16-bit integer
         print("NumChannels=",NumChannels[0])
-
-        SampleRateString=fin.read(4) #sample rate
-        SampleRate=struct.unpack("I",SampleRateString)
         print("SampleRate=",SampleRate[0])
-
-        ByteRateString=fin.read(4)
-        ByteRate=struct.unpack("I",ByteRateString) # 'I' unsigned 32 bit integer
-        print("ByteRate=",ByteRate[0]) # (Sample Rate* BitsPerSample* Channels) / 8
-
-        BlockAlignString=fin.read(2)
-        BlockAlign=struct.unpack("H",BlockAlignString) # 'H' unsigned 16-bit integer
+        print("ByteRate=",ByteRate[0])
         print("BlockAlign=",BlockAlign[0])
-
-        BitsPerSampleString=fin.read(2) # 16 (CD has 16-bits per sample for each channel)
-        BitsPerSample=struct.unpack("H",BitsPerSampleString) # 'H' unsigned 16-bit integer
         print("BitsPerSample=",BitsPerSample[0])
-
-        SubChunk2ID=fin.read(4) # "data" in ASCII
         print("SubChunk2ID=",SubChunk2ID)
-
-        SubChunk2SizeString=fin.read(4) # Number of Data Bytes, Same as DataSize
-        SubChunk2Size=struct.unpack("I",SubChunk2SizeString)
         print("SubChunk2Size=",SubChunk2Size[0])
 
-        Header_Info= {'ChunkID': ChunkID.decode('ASCII'), 'FileSize': TotalSize, 'Format': Format, 'SubChunk1ID': SubChunk1ID, 'SubChunk1Size':SubChunk1Size[0],'AudioFormat':AudioFormat[0], 'NumChannels' : NumChannels[0],'SampleRate' : SampleRate[0], 'ByteRate': ByteRate[0], 'BlockAlign' : BlockAlign[0],'BitsPerSample':BitsPerSample[0], 'SubChunk2ID':SubChunk2ID.decode('ASCII'), 'SubChunk2Size' : SubChunk2Size[0]}
-
-        #Write to txt file
-        if checksum == True:
-            writeToFile = os.path.join(outPath, 'Header_Information_Summary.txt')
-            with open(writeToFile, "a+") as af:
-                af.write(filepath)
-                af.write('\n')
-                for key, value in Header_Info.items():
-                    af.write('%s:%s\n' % (key, value))
-                af.write("--------------------------------- \n")
-            fin.close()
-        else:
-            writeToFile = os.path.join(outPath, filename + '_Header_Information.txt')
-            with open(writeToFile, "w+") as f:
-                f.write(filepath)
-                f.write('\n')
-                for key, value in Header_Info.items():
-                    f.write('%s:%s\n' % (key, value))
-            fin.close()
+        writeToFile = os.path.join(outPath, filename + '_Header_Information.txt')
+        with open(writeToFile, "w+") as f:
+            f.write(filepath)
+            f.write('\n')
+            for key, value in Header_Info.items():
+                f.write('%s:%s\n' % (key, value))
+        fin.close()
 
 # --------------Zul - Header Information--------------
 def headerInformation (inDir, outDir, allHeaders):
     # Check if user enter -s (they want to export in all audio in the directory)
     if allHeaders == True:
-        print("Checked!")
         for root, dirs, files in os.walk(inDir, topdown=True):
             os.chdir(inDir)
             for file in files:
                 if file.endswith(".wav"):
                     headAll, sepAll, tailAll = file.partition('.')
                     checkHeader(inDir, outDir, file, headAll, allHeaders)
-                    print(headAll)
+                    print(headAll, "Header Information is exported!")
                 else:
-                    print("Not found!")
+                    print(headAll, "is not a valid wav audio file. Header information will not be created!")
     else:
         audioName = os.path.basename(inDir)
         head, sep, tail = audioName.partition('.')
 
         #Check if file is wav
         if tail.endswith('wav'):
-            print("Below is the header information of", audioName)
-
             # call checking header method
             checkHeader(inDir, outDir, audioName, head, allHeaders)
         else:
