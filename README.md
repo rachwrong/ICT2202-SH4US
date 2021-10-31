@@ -29,9 +29,6 @@ Bin Dump
 - Export Bin dump of audios from a folder out as separate txt files (summary of all binaries) [DONE]
 
 # User Guide
-## Audio Digger (WIP)
-A command-line based audio analysis tool that is able to read .wav and .mp3 files.
-
 ## Prerequisites
 This program requires python(at least 3.8) to be installed on your machine as well as these python packages: 
 1. matplotlib
@@ -50,7 +47,7 @@ https://www.ffmpeg.org/download.html
 Ensure that ffmpeg is installed into the correct directories and is a system environment variable, you can refer to
 https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10
 
-## How to use Audio Digger (WIP)
+## How to use Audio Digger
 ### Functions
 Audio Digger has the following functions:
 1. Display header information of the audio files, header information will also be exported into a .txt file
@@ -73,3 +70,17 @@ The following are arguments that can be used when running Audio Digger:
 | -bin | --binary | Create a binary dump of the audio file |
 | -hex | --hexadecimal | Create a hexadecimal dump of the audio file |
 | -head | --header | Extract out the Header information of the audio file |
+### How to run Audio Digger
+Ensure that current working directory in command prompt is the directory containing AudioDigger.py.
+
+Commands follow this syntax:
+
+python AudioDigger.py [-h]/[-i [in_path]] [-c]/[-xmn]/[-xmx]/[-ymn]/[-ymx] out_path [-bin]/[-hex]/[-head]/[-sp]/[-s]
+
+Examples on how to run commands for different functions:
+| Description | Sample Command |
+| --- | --- |
+| Display and export header information | python AudioDigger.py -i [in_path] [out_path] -head | 
+| Create and export spectrograms | python AudioDigger.py -i [in_path] [out_path] -sp |
+| Create and export hex dumps | python AudioDigger.py -i [in_path] [out_path] -hex |
+| Create and export bin dumps | python AudioDigger.py -i [in_path] [out_path] -bin |
