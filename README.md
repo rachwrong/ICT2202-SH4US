@@ -84,3 +84,5 @@ Examples on how to run commands for different functions:
 | Create and export spectrograms | python AudioDigger.py -i [in_path] [out_path] -sp |
 | Create and export hex dumps | python AudioDigger.py -i [in_path] [out_path] -hex |
 | Create and export bin dumps | python AudioDigger.py -i [in_path] [out_path] -bin |
+
+For more information on Audio Digger, please refer to the document Audio Digger User Manual.
