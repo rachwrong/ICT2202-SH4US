@@ -50,25 +50,23 @@ def inputValidate(inDir, outDir, color, xmin, xmax, ymin, ymax):
 
 # Read all files
 def readDirectory(inDir, outDir, color, xmin, xmax, ymin, ymax, summary):
-    # Create ONE figure for Summary
-    if summary:
-        figureSummary = plt.figure(1, figsize=(50,50), constrained_layout=True)
     # Drill down for audio files
     for root, dirs, files in os.walk(inDir, topdown=True):
         os.chdir(inDir)
         for file in files:
             if file.endswith('.mp3'):
                 if summary:
-                    createSpectrogram(mp3Handler(root+"\\"+file), file, outDir, color, xmin, xmax, ymin, ymax, summary, figureSummary)
+                    createSpectrogram(mp3Handler(root+"\\"+file), file, outDir, color, xmin, xmax, ymin, ymax, summary)
                 else:
                     createSpectrogram(mp3Handler(root+"\\"+file), file, outDir, color, xmin, xmax, ymin, ymax, summary)
             elif file.endswith(".wav"):
                 if summary:
-                    createSpectrogram((root+"\\"+file),file, outDir, color, xmin, xmax, ymin, ymax, summary, figureSummary)
+                    createSpectrogram((root+"\\"+file),file, outDir, color, xmin, xmax, ymin, ymax, summary)
                 else:
                     createSpectrogram((root+"\\"+file),file, outDir, color, xmin, xmax, ymin, ymax, summary)
     # Create Spectrogram for Summary
     if summary:
+        figureSummary = plt.figure(1, figsize=(50,(5*sum(summaryDataCount))), constrained_layout=True)
         plotSummary(outDir, color, xmin, xmax, ymin, ymax, figureSummary)
 
 def readFile(inDir, outDir, color, xmin, xmax, ymin, ymax):
@@ -85,7 +83,7 @@ def mp3Handler(file):
     return wname
 
 # Create Spectrogram
-def createSpectrogram(file,name,outDir, color, xmin, xmax, ymin, ymax, summary=False, figureSummary=None):
+def createSpectrogram(file,name,outDir, color, xmin, xmax, ymin, ymax, summary=False):
     try:
         FS, data = wavfile.read(file)  # read wav file
     except Exception:
@@ -93,7 +91,6 @@ def createSpectrogram(file,name,outDir, color, xmin, xmax, ymin, ymax, summary=F
         print("Error: Skipping ",name, " file unreadable. High probability of being tempered with.")
         return 
     if summary:
-        figure = figureSummary
         if data.ndim == 2:
             summaryDataList.append(data[:,1])
             summaryDataList.append(data[:,0])
