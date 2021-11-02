@@ -5,12 +5,14 @@ import os
 import argparse
 import struct
 import numpy as numpy
+
 from pydub import AudioSegment
 import matplotlib.pyplot as plt
 from scipy.io import wavfile
 from pathlib import Path
 from tempfile import mktemp
 from mutagen.mp3 import MP3
+from mutagen.id3 import ID3
 
 splitCount = 1
 summaryDataList = []
@@ -18,6 +20,7 @@ summaryDataCount = []
 summaryNameList = []
 summaryFSList = []
 numpy.seterr(divide='ignore')
+
 
 # --------------Dexter & Rachel - Spectrogram--------------
 # Validate Inputs for Spectrogram
@@ -69,8 +72,9 @@ def readDirectory(inDir, outDir, color, xmin, xmax, ymin, ymax, summary):
 
     # Create Spectrogram for Summary
     if summary:
-        figureSummary = plt.figure(1, figsize=(50,(5*sum(summaryDataCount))), constrained_layout=True)
+        figureSummary = plt.figure(1, figsize=(50, (5*sum(summaryDataCount))), constrained_layout=True)
         plotSummary(outDir, color, xmin, xmax, ymin, ymax, figureSummary)
+
 
 def readFile(inDir, outDir, color, xmin, xmax, ymin, ymax):
     if str(inDir).endswith('.mp3'):
@@ -78,12 +82,14 @@ def readFile(inDir, outDir, color, xmin, xmax, ymin, ymax):
     else:
         createSpectrogram(inDir, ntpath.basename(inDir), outDir, color, xmin, xmax, ymin, ymax)
 
+
 # MP3 Handler - Creates a temporary wav files for mp3 to create spectrogram
 def mp3Handler(file):
     mp3_audio = AudioSegment.from_file(file, format="mp3")  # read mp3
     wname = mktemp('.wav')  # use temporary file
     mp3_audio.export(wname, format="wav")  # convert to wav
     return wname
+
 
 # Create Spectrogram
 def createSpectrogram(file, name, outDir, color, xmin, xmax, ymin, ymax, summary=False):
@@ -106,7 +112,7 @@ def createSpectrogram(file, name, outDir, color, xmin, xmax, ymin, ymax, summary
 
     else:
         global splitCount
-        splitCount+=1
+        splitCount += 1
         if data.ndim == 2:
             figure = plt.figure(splitCount, figsize=(100, 10))
             gspec = figure.add_gridspec(ncols=1, nrows=2)
@@ -136,7 +142,7 @@ def createSpectrogram(file, name, outDir, color, xmin, xmax, ymin, ymax, summary
             gspec = figure.add_gridspec(ncols=1, nrows=1)
             spec_single = figure.add_subplot()
             cmap = plt.get_cmap(color)
-            spec_single.specgram(data, Fs=FS, NFFT=128, noverlap=0, cmap=cmap) # plot single
+            spec_single.specgram(data, Fs=FS, NFFT=128, noverlap=0, cmap=cmap)  # plot single
             spec_single.set_ylabel("One-Dimensional")
             spec_single.set_title(name)
 
@@ -150,6 +156,7 @@ def createSpectrogram(file, name, outDir, color, xmin, xmax, ymin, ymax, summary
                 spec_single.set_ylim(right=ymax)
 
         figure.savefig((str(outDir)+'\\'+name+"-Spectrogram.png"))
+
 
 def plotSummary(outDir, color, xmin, xmax, ymin, ymax, figure):
     count = sum(summaryDataCount)
@@ -182,7 +189,7 @@ def plotSummary(outDir, color, xmin, xmax, ymin, ymax, figure):
         else:
             spec_single = figure.add_subplot(gspec[dataIndex])
             cmap = plt.get_cmap(color)
-            spec_single.specgram(summaryDataList[dataIndex], Fs=summaryFSList[dataIndex], NFFT=128, noverlap=0, cmap=cmap) # plot single
+            spec_single.specgram(summaryDataList[dataIndex], Fs=summaryFSList[dataIndex], NFFT=128, noverlap=0, cmap=cmap)  # plot single
             spec_single.set_ylabel("One-Dimensional")
             spec_single.set_title(summaryNameList[fileIndex])
             if xmin is not None:
@@ -196,6 +203,7 @@ def plotSummary(outDir, color, xmin, xmax, ymin, ymax, figure):
         dataIndex += 1
         fileIndex += 1
     figure.savefig((str(outDir)+'\\'+"Summary-Spectrogram.png"))
+
 
 # --------------KC - Hex Dump--------------
 def createHexDump(inDir, outDir, total):
@@ -250,6 +258,7 @@ def createHexDump(inDir, outDir, total):
             else:
                 print(audioFName, "is not a mp3/wav audio file. Bin Dump will not be created!")
 
+
 # --------------KC - Bin Dump--------------
 def createBinDump(inDir, outDir, total):
     # Check if user enter -s (they want to export in all audio in the directory)
@@ -297,6 +306,7 @@ def createBinDump(inDir, outDir, total):
                     print(audioName, "bin dump is created!")
             else:
                 print(audioName, "is not a mp3/wav audio file. Bin Dump will not be created!")
+
 
 # --------------Zul & KC - Header Checking for WAV File--------------
 def checkWAVHeader(inPath, outPath, filepath, filename, checksum):
@@ -353,13 +363,13 @@ def checkWAVHeader(inPath, outPath, filepath, filename, checksum):
 
     # Write to txt file
     if checksum:
-        writeToFile = os.path.join(outPath, 'Header_Information_Summary.txt')
+        writeToFile = os.path.join(outPath, 'Wav_HeaderSummary.txt')
         with open(writeToFile, "a+") as af:
             af.write(filepath)
             af.write('\n')
             for key, value in Header_Info.items():
                 af.write('%s:%s\n' % (key, value))
-            af.write("--------------------------------- \n")
+            af.write("==================== \n")
         fin.close()
 
     else:
@@ -392,20 +402,32 @@ def checkWAVHeader(inPath, outPath, filepath, filename, checksum):
 def checkMP3Tags(inPath3, outPath3, filepath3, filename3, checksum3):
     # Check if user enter -s (they want to export in all audio in the directory)
     if checksum3:
-        audio = MP3(filepath3)
-        # Write to txt file
-        writeToFile = os.path.join(outPath3, 'MP3Tags_Summary.txt')
-        with open(writeToFile, "a+") as mp3File:
-            mp3File.writelines("Audio File Name: " + filename3 + "\n")
-            mp3File.writelines(str(audio.pprint()) + "\n",)
-            mp3File.writelines("====================\n")
+        try:
+            ID3(filepath3)
+        except Exception:
+            print(filename3, "is not a valid mp3 file, High probability of being tempered with.")
+        else:
+            audio = MP3(filepath3)
+            # Write to txt file
+            writeToFile = os.path.join(outPath3, 'MP3_TagsSummary.txt')
+            with open(writeToFile, "a+") as mp3File:
+                mp3File.writelines("Audio File Name: " + filename3 + "\n")
+                mp3File.writelines(str(audio.pprint()) + "\n",)
+                mp3File.writelines("====================\n")
     else:
-        audio = MP3(inPath3)
-        writeToFile = os.path.join(outPath3, filename3 + '_MP3Tags.txt')
-        with open(writeToFile, "w+") as aMp3File:
-            aMp3File.writelines(str(audio.pprint()) + "\n",)
+        # check validity
+        try:
+           ID3(inPath3)
+        except Exception:
+            print("This is not a valid mp3 file, High probability of being tempered with.")
+        else:
+            # To write into txt
+            audio = MP3(inPath3)
+            writeToFile = os.path.join(outPath3, filename3 + '_MP3Tags.txt')
+            with open(writeToFile, "w+") as aMp3File:
+                aMp3File.writelines(str(audio.pprint()) + "\n",)
 
-        print(filename3, "Header Information is exported!")
+            print(filename3, "Header Information is exported!")
 
 
 # --------------Zul - Header Information--------------
@@ -433,22 +455,21 @@ def headerInformation(inDir, outDir, allHeaders):
         else:
             print("Path is incorrect. Header Information Summary will not be created!")
     else:
-        print(inDir)
         audioName = os.path.basename(inDir)
         head, sep, tail = audioName.partition('.')
-        print(tail)
         # Check if file is wav
         if tail.endswith('wav'):
             # call checking header method
             checkWAVHeader(inDir, outDir, audioName, head, allHeaders)
 
-        # Check whther file is a .mp3 file
+        # Check whether file is a .mp3 file
         elif tail.endswith("mp3"):
             # call checking mp3tag method
             checkMP3Tags(inDir, outDir, audioName, head, allHeaders)
 
         else:
             print("Not a WAV file, please check your input again!")
+
 
 # Main Method
 if __name__ == "__main__":
