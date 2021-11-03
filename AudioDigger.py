@@ -132,11 +132,11 @@ def createSpectrogram(file, name, outDir, color, xmin, xmax, ymin, ymax, summary
                 spec_left.set_xlim(right=xmax)
                 spec_right.set_xlim(right=xmax)
             if ymin is not None:
-                spec_left.set_ylim(left=ymin)
-                spec_right.set_ylim(left=ymin)
+                spec_left.set_ylim(bottom=ymin)
+                spec_right.set_ylim(bottom=ymin)
             if ymin is not None:
-                spec_left.set_ylim(right=ymax)
-                spec_right.set_ylim(right=ymax)
+                spec_left.set_ylim(top=ymax)
+                spec_right.set_ylim(top=ymax)
         else:
             figure = plt.figure(splitCount, figsize=(100, 10))
             gspec = figure.add_gridspec(ncols=1, nrows=1)
@@ -151,9 +151,9 @@ def createSpectrogram(file, name, outDir, color, xmin, xmax, ymin, ymax, summary
             if xmax is not None:
                 spec_single.set_xlim(right=xmax)
             if ymin is not None:
-                spec_single.set_ylim(left=ymin)
+                spec_single.set_ylim(bottom=ymin)
             if ymin is not None:
-                spec_single.set_ylim(right=ymax)
+                spec_single.set_ylim(top=ymax)
 
         figure.savefig((str(outDir)+'\\'+name+"-Spectrogram.png"))
 
@@ -181,11 +181,11 @@ def plotSummary(outDir, color, xmin, xmax, ymin, ymax, figure):
                 spec_left.set_xlim(right=xmax)
                 spec_right.set_xlim(right=xmax)
             if ymin is not None:
-                spec_left.set_ylim(left=ymin)
-                spec_right.set_ylim(left=ymin)
+                spec_left.set_ylim(bottom=ymin)
+                spec_right.set_ylim(bottom=ymin)
             if ymin is not None:
-                spec_left.set_ylim(right=ymax)
-                spec_right.set_ylim(right=ymax)
+                spec_left.set_ylim(top=ymax)
+                spec_right.set_ylim(top=ymax)
         else:
             spec_single = figure.add_subplot(gspec[dataIndex])
             cmap = plt.get_cmap(color)
@@ -197,9 +197,9 @@ def plotSummary(outDir, color, xmin, xmax, ymin, ymax, figure):
             if xmax is not None:
                 spec_single.set_xlim(right=xmax)
             if ymin is not None:
-                spec_single.set_ylim(left=ymin)
+                spec_single.set_ylim(bottom=ymin)
             if ymin is not None:
-                spec_single.set_ylim(right=ymax)
+                spec_single.set_ylim(top=ymax)
         dataIndex += 1
         fileIndex += 1
     figure.savefig((str(outDir)+'\\'+"Summary-Spectrogram.png"))
