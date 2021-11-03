@@ -9,12 +9,14 @@ This program requires python(at least 3.8) to be installed on your machine as we
 1. matplotlib
 2. pydub
 3. scipy
+4. mutagen
 
 You can either install this by downloading requirements.txt and running pip install -r requirements.txt or installing them manually with the following commands:
 
 1. pip install matplotlib
 2. pip install pydub
 3. pip install scipy 
+4. pip install mutagen 
 
 The program also requires having ffmpeg installed. You can download ffmpeg using the following link: 
 https://www.ffmpeg.org/download.html
