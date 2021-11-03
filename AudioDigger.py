@@ -95,6 +95,9 @@ def mp3Handler(file):
 def createSpectrogram(file, name, outDir, color, xmin, xmax, ymin, ymax, summary=False):
     try:
         FS, data = wavfile.read(file)  # read wav file
+        # reading wav file
+        FS, data = wavfile.read(file)
+
     except Exception:
         pass
         print("Error: Skipping ", name, ". This file is unreadable. High probability of being tempered with.")
@@ -426,7 +429,7 @@ def checkMP3Tags(inPath3, outPath3, filepath3, filename3, checksum3):
             writeToFile = os.path.join(outPath3, filename3 + '_MP3Tags.txt')
             with open(writeToFile, "w+") as aMp3File:
                 aMp3File.writelines(str(audio.pprint()) + "\n",)
-
+            print(audio.pprint())
             print(filename3, "Header Information is exported!")
 
 
