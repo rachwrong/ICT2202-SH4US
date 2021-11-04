@@ -137,7 +137,7 @@ def createSpectrogram(file, name, outDir, color, xmin, xmax, ymin, ymax, summary
             if ymin is not None:
                 spec_left.set_ylim(bottom=ymin)
                 spec_right.set_ylim(bottom=ymin)
-            if ymin is not None:
+            if ymax is not None:
                 spec_left.set_ylim(top=ymax)
                 spec_right.set_ylim(top=ymax)
         else:
@@ -155,7 +155,7 @@ def createSpectrogram(file, name, outDir, color, xmin, xmax, ymin, ymax, summary
                 spec_single.set_xlim(right=xmax)
             if ymin is not None:
                 spec_single.set_ylim(bottom=ymin)
-            if ymin is not None:
+            if ymax is not None:
                 spec_single.set_ylim(top=ymax)
 
         figure.savefig((str(outDir)+'\\'+name+"-Spectrogram.png"))
@@ -186,7 +186,7 @@ def plotSummary(outDir, color, xmin, xmax, ymin, ymax, figure):
             if ymin is not None:
                 spec_left.set_ylim(bottom=ymin)
                 spec_right.set_ylim(bottom=ymin)
-            if ymin is not None:
+            if ymax is not None:
                 spec_left.set_ylim(top=ymax)
                 spec_right.set_ylim(top=ymax)
         else:
@@ -201,7 +201,7 @@ def plotSummary(outDir, color, xmin, xmax, ymin, ymax, figure):
                 spec_single.set_xlim(right=xmax)
             if ymin is not None:
                 spec_single.set_ylim(bottom=ymin)
-            if ymin is not None:
+            if ymax is not None:
                 spec_single.set_ylim(top=ymax)
         dataIndex += 1
         fileIndex += 1
@@ -420,7 +420,7 @@ def checkMP3Tags(inPath3, outPath3, filepath3, filename3, checksum3):
     else:
         # check validity
         try:
-           ID3(inPath3)
+            ID3(inPath3)
         except Exception:
             print("This is not a valid mp3 file, High probability of being tempered with.")
         else:
