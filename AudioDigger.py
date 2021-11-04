@@ -259,7 +259,7 @@ def createHexDump(inDir, outDir, total):
                     f.close()
                     print(audioFName, "hex dump is created!")
             else:
-                print(audioFName, "is not a mp3/wav audio file. Bin Dump will not be created!")
+                print(audioFName, "is not a mp3/wav audio file. Hex Dump will not be created!")
 
 
 # --------------KC - Bin Dump--------------
