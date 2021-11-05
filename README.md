@@ -1,6 +1,7 @@
 # ICT2202-SH4US
 
-Audio Analysis for mp3 & wav files on Python - Audio Digger
+Audio Analysis for MP3 & WAV files on Python - Audio Digger
+
 A light weight program that is created to let user do audio analysis easily and quickly.
 
 # User Guide
@@ -62,4 +63,4 @@ Examples on how to run commands for different functions:
 | Create and export hex dumps | python AudioDigger.py -i [in_path] [out_path] -hex |
 | Create and export bin dumps | python AudioDigger.py -i [in_path] [out_path] -bin |
 
-For more information on Audio Digger, please refer to the document Audio Digger User Manual.
+For more information on Audio Digger, please refer to the Audio Digger User Manual <a href="https://github.com/rachwrong/ICT2202-SH4US/blob/main/AudioDigger%20User%20Manual.pdf">here</a> or our video <a href="https://youtu.be/sdJ-arcTM04">here</a>
