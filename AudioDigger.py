@@ -94,7 +94,6 @@ def mp3Handler(file):
 # Create Spectrogram
 def createSpectrogram(file, name, outDir, color, xmin, xmax, ymin, ymax, summary=False):
     try:
-        FS, data = wavfile.read(file)  # read wav file
         # reading wav file
         FS, data = wavfile.read(file)
 
