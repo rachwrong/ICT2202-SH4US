@@ -1,6 +1,6 @@
 # ICT2202-SH4US
 
-Audio Analysis for MP3 & WAV files on Python - Audio Digger
+Audio Analysis for MP3 & WAV files on Python - AudioDigger
 
 A light weight program that is created to let user do audio analysis easily and quickly.
 
@@ -25,15 +25,15 @@ https://www.ffmpeg.org/download.html
 Ensure that ffmpeg is installed into the correct directories and is a system environment variable, you can refer to
 https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10
 
-## How to use Audio Digger
+## How to use AudioDigger
 ### Functions
-Audio Digger has the following functions:
+AudioDigger has the following functions:
 1. Display header information of the audio files, header information will also be exported into a .txt file
 2. Create spectrograms and exports them as .png files
 3. Export hex dumps of the audio files into a .txt file
 4. Export bin dump of the audio files into a .txt file
 ### Commands
-The following are arguments that can be used when running Audio Digger:
+The following are arguments that can be used when running AudioDigger:
 | Argument | Full Argument | Description |
 | --- | --- | --- |
 | -h | --help | Shows help message and exits |
@@ -48,7 +48,7 @@ The following are arguments that can be used when running Audio Digger:
 | -bin | --binary | Create a binary dump of the audio file |
 | -hex | --hexadecimal | Create a hexadecimal dump of the audio file |
 | -head | --header | Extract out the Header information of the audio file |
-### How to run Audio Digger
+### How to run AudioDigger
 Ensure that current working directory in command prompt is the directory containing AudioDigger.py.
 
 Commands follow this syntax:
@@ -63,4 +63,4 @@ Examples on how to run commands for different functions:
 | Create and export hex dumps | python AudioDigger.py -i [in_path] [out_path] -hex |
 | Create and export bin dumps | python AudioDigger.py -i [in_path] [out_path] -bin |
 
-For more information on Audio Digger, please refer to the Audio Digger User Manual <a href="https://github.com/rachwrong/ICT2202-SH4US/blob/main/AudioDigger%20User%20Manual.pdf">here</a> or our video <a href="https://youtu.be/sdJ-arcTM04">here</a>
+For more information on AudioDigger, please refer to the AudioDigger User Manual <a href="https://github.com/rachwrong/ICT2202-SH4US/blob/main/AudioDigger%20User%20Manual.pdf">here</a> or our video <a href="https://youtu.be/sdJ-arcTM04">here</a>
