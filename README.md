@@ -27,7 +27,7 @@ https://superuser.com/questions/949560/how-do-i-set-system-environment-variables
 
 ## How to use AudioDigger
 ### Video Example
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/sdJ-arcTM04/0.jpg)](https://www.youtube.com/watch?v=sdJ-arcTM04)
+[![AudioDigger Example](https://img.youtube.com/vi/sdJ-arcTM04/0.jpg)](https://www.youtube.com/watch?v=sdJ-arcTM04)
 ### Functions
 AudioDigger has the following functions:
 1. Display header information of the audio files, header information will also be exported into a .txt file
