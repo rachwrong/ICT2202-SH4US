@@ -26,6 +26,8 @@ Ensure that ffmpeg is installed into the correct directories and is a system env
 https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10
 
 ## How to use AudioDigger
+### Video Example
+<iframe width="560" height="315" src="https://www.youtube.com/embed/sdJ-arcTM04" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 ### Functions
 AudioDigger has the following functions:
 1. Display header information of the audio files, header information will also be exported into a .txt file
@@ -63,4 +65,4 @@ Examples on how to run commands for different functions:
 | Create and export hex dumps | python AudioDigger.py -i [in_path] [out_path] -hex |
 | Create and export bin dumps | python AudioDigger.py -i [in_path] [out_path] -bin |
 
-For more information on AudioDigger, please refer to the AudioDigger User Manual <a href="https://github.com/rachwrong/ICT2202-SH4US/blob/main/AudioDigger%20User%20Manual.pdf">here</a> or our video <a href="https://youtu.be/sdJ-arcTM04">here</a>
+For more information on AudioDigger, please refer to the AudioDigger User Manual <a href="https://github.com/rachwrong/ICT2202-SH4US/blob/main/AudioDigger%20User%20Manual.pdf">
